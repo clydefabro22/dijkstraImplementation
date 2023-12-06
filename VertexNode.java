@@ -24,4 +24,8 @@ public class VertexNode {
         }
         System.out.println();
     }
+
+    public Edge getNext(){
+        return adjacentNodes.getFirst();
+    }
 }
