@@ -7,6 +7,7 @@ public class MainApp {
     public static void main(String[] args) throws IOException {
         FileReader fr = new FileReader("input.txt");
         Scanner in = new Scanner(fr);
+        Scanner in2 = new Scanner(System.in);
 
         LinkedList<VertexNode> vertexLinkedList = new LinkedList<VertexNode>();
         String buffer = "";
@@ -22,18 +23,30 @@ public class MainApp {
                 key = buffer.substring(0, 1);
                 adjacent = buffer.substring(2,3);
                 weight = Integer.parseInt(buffer.substring(4,buffer.length()));
-                //System.out.println(key + " " + adjacent);
                 insertAdjacent(key, adjacent, weight, vertexLinkedList);
             }
         }
 
-        printVertices(vertexLinkedList);
-        VertexNode start = vertexLinkedList.getFirst();
+        System.out.println("DIJKSTRA'S ALGORITHM");
+        System.out.println("Pick a node to start on: ");
+        String inputNode;
+        VertexNode startingNode = null;
+        while(true){
+            inputNode = in2.nextLine();
+            for(VertexNode findingStartingNode: vertexLinkedList){
+                if(findingStartingNode.getKey().equals(inputNode)){
+                    startingNode = findingStartingNode;
+                    break;
+                }
+            }
+            if(startingNode != null){
+                break;
+            }
+        }
 
-        dijkstraAlgorithm(start, vertexLinkedList);
+        dijkstraAlgorithm(startingNode, vertexLinkedList);
         in.close();
-
-        
+        in2.close();
     }
 
     public static void insertAdjacent(String key, String adjacent, int weight, LinkedList<VertexNode> vertexLinkedList){
@@ -60,20 +73,29 @@ public class MainApp {
         int previous = 0;
         boolean[] visited = new boolean[vertexLinkedList.size()];
         
-        //Default values
-        distance[0] = 0;
-        visited[0] = true;
-        for(int i = 1; i < distance.length; i++){
-            distance[i] = Integer.MAX_VALUE;
-            visited[i] = false;
+        //Default of starting node
+        int k = 0;
+        for(VertexNode node: vertexLinkedList){
+            if(startingNode.getKey().equals(node.getKey())){
+                distance[k] = 0;
+                visited[k] = true;
+                break;
+            }
+            k++;
+        }
+        //Default values of everything else
+        for(int i = 0; i < distance.length ; i++){
+            if(i != k){
+                distance[i] = Integer.MAX_VALUE;
+                visited[i] = false;
+            }
         }
 
         int smallest = 0;
         VertexNode current = startingNode;
-
-        int x =0;
-        while(x<8){
-            System.out.println("CURRENT VERTEX: " + current.getKey());
+    
+        //The Algorithm at Work. Stops when the last node unvisited has distance of infinity
+        while(true){
             
             int j = 0;
             //VISITING CHECK
@@ -82,9 +104,6 @@ public class MainApp {
                     visited[j] = true;
                 }
                 j++;
-            }
-            for(int i = 0; i < distance.length; i++){
-                System.out.println(vertexLinkedList.get(i).getKey() + " " + visited[i]);
             }
 
             //UPDATING DISTANCE
@@ -97,12 +116,9 @@ public class MainApp {
                     i++;
                 }
             }
-            for(int i = 0; i < distance.length; i++){
-                System.out.println(vertexLinkedList.get(i).getKey() + " " + distance[i]);
-            }
 
+            //NEXT ROUTE
             int nextRoute = Integer.MAX_VALUE;
-
             for(int i = 0; i < distance.length; i++){
                 if(visited[i] == false && distance[i] < nextRoute){
                     nextRoute = distance[i];
@@ -114,11 +130,23 @@ public class MainApp {
                     previous = distance[i];
                 }
             }
-            x++;
+            if(nextRoute == Integer.MAX_VALUE)
+                break;
         }
-        
-        
 
-        
+        //Printing
+        int l = 0;
+        System.out.println("Starting Vertex: " + startingNode.getKey());
+        for(VertexNode node: vertexLinkedList){
+            if(!node.getKey().equals(startingNode.getKey())){
+                System.out.print(node.getKey() + " ");
+                if(distance[l] == Integer.MAX_VALUE){
+                    System.out.println("Infinity");
+                } else {
+                    System.out.println(distance[l]);
+                }
+            }
+            l++;
+        }
     }
 }
